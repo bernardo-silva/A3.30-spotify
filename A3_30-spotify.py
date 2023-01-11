@@ -30,11 +30,9 @@ def create_playlist(tracks, artists):
         if playlist["name"] == "A3.30":
             break
 
-    print(playlist["id"])
-
     track_ids = []
     for track, artist in zip(tracks, artists):
-        print("Searching for ", track, artist)
+        print(f"Searching for {track} - {artist}")
         new_track = sp.search(q=f"{artist} {track}")["tracks"]["items"][0]
         track_ids.append(new_track["id"])
 
