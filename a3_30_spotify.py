@@ -1,16 +1,19 @@
+""" Create a Spotify playlist with the tracks from A3.30"""
+from dotenv import load_dotenv
 import bs4
 import requests
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 
 
-def get_A330():
+def get_a3_30():
+    """Get the tracks and artists from the Antena 3 website."""
     url = "https://media.rtp.pt/antena3/"
-    result = requests.get(url)
+    result = requests.get(url, timeout=5)
     soup = bs4.BeautifulSoup(result.content, "html.parser")
     a330_url = soup.find("a", "results-right").get("href")
 
-    result = requests.get(a330_url)
+    result = requests.get(a330_url, timeout=5)
     soup = bs4.BeautifulSoup(result.content, "html.parser")
 
     tracks = [p.text for p in soup.find_all("p", "vote-track-name")]
@@ -20,8 +23,13 @@ def get_A330():
 
 
 def create_playlist(tracks, artists):
-    scope = ["playlist-read-private", "playlist-modify-private",
-             "playlist-read-collaborative", "playlist-modify-public"]
+    """Create a playlist on Spotify with the given tracks and artists."""
+    scope = [
+        "playlist-read-private",
+        "playlist-modify-private",
+        "playlist-read-collaborative",
+        "playlist-modify-public",
+    ]
     auth_manager = SpotifyOAuth(scope=scope)
     sp = spotipy.Spotify(auth_manager=auth_manager)
 
@@ -38,7 +46,10 @@ def create_playlist(tracks, artists):
 
     sp.playlist_add_items(playlist["id"], items=track_ids)
 
+def main():
+    load_dotenv()
+    tracks, artists = get_a3_30()
+    create_playlist(tracks, artists)
 
 if __name__ == "__main__":
-    tracks, artists = get_A330()
-    create_playlist(tracks, artists)
+    main()
